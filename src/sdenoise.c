@@ -109,8 +109,7 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	self->input_frame = (float*)calloc(self->frame_size, sizeof(float));
 	self->processed_frame = (float*)calloc(self->frame_size, sizeof(float));
 	self->input_latency = self->frame_size;
-	self->read_ptr = self->input_latency; //the initial position because we are that many samples ahead
-	self->write_ptr = 0; //the initial position because we are that many samples ahead
+	self->read_ptr = 0; //the initial position because we are that many samples ahead
 
 	//soft bypass
 	self->tau = (1.f - expf(-2.f * M_PI * 25.f * 64.f  / self->samp_rate));
@@ -177,21 +176,19 @@ run(LV2_Handle instance, uint32_t n_samples)
 	for (pos = 0; pos < n_samples; pos++)
 	{
 		//Store samples in the input buffer
-		self->in_fifo[self->write_ptr] = self->input[pos];
+		self->in_fifo[self->read_ptr] = self->input[pos];
 		//Output samples in the output buffer (even zeros introduced by latency)
-		self->output[pos] = self->out_fifo[self->read_ptr - self->input_latency];
+		self->output[pos] = self->out_fifo[self->read_ptr];
 		//Now move the read pointer
 		self->read_ptr++;
-		self->write_ptr++;
-
 
 		//Once the buffer is full we can do stuff
 		if (self->read_ptr >= self->frame_size)
 		{
 			//Reset the input buffer position
-			self->read_ptr = self->input_latency;
-			self->write_ptr = 0;
+			self->read_ptr = 0;
 
+			//Copy samples to RNNoise input array
 			for (k = 0; k < self->frame_size; k++)
 			{
 				self->input_frame[k] = self->in_fifo[k];
@@ -210,7 +207,7 @@ run(LV2_Handle instance, uint32_t n_samples)
 
 			//-----------------------------------
 
-			//Output samples
+			//Output processed samples from RNNoise to output fifo
 			for (k = 0; k < self->frame_size; k++)
 			{
 				self->out_fifo[k] = self->processed_frame[k];
