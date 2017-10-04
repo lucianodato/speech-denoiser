@@ -68,6 +68,7 @@ typedef struct
 
 	//Parameters values for RNNoise libray
 	int frame_size; //RNNOISE frame input size
+	DenoiseState *st;//RNNoise instance
 
 	//Algorithm exta variables
 	float tau; //time constant for soft bypass
@@ -78,11 +79,9 @@ typedef struct
 	int input_latency;
 	float* in_fifo; //internal input buffer
 	float* out_fifo; //internal output buffer
-	float* input_frame;
-	float* processed_frame;
+	float* rnnoise_input_frame;
+	float* rnnoise_output_frame;
 	int read_ptr; //buffers read pointer
-
-	DenoiseState *st;
 
 } SDenoise;
 
@@ -101,12 +100,13 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 
 	//RNNoise related
 	self->frame_size = FRAME_SIZE;
+	self->st = rnnoise_create();
 
 	//processing buffers
 	self->in_fifo = (float*)calloc(self->frame_size, sizeof(float));
 	self->out_fifo = (float*)calloc(self->frame_size, sizeof(float));
-	self->input_frame = (float*)calloc(self->frame_size, sizeof(float));
-	self->processed_frame = (float*)calloc(self->frame_size, sizeof(float));
+	self->rnnoise_input_frame = (float*)calloc(self->frame_size, sizeof(float));
+	self->rnnoise_output_frame = (float*)calloc(self->frame_size, sizeof(float));
 	self->input_latency = self->frame_size;
 	self->read_ptr = 0; //the initial position because we are that many samples ahead
 
@@ -114,7 +114,7 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	self->tau = (1.f - expf(-2.f * M_PI * 25.f * 64.f  / self->samp_rate));
 	self->wet_dry = 0.f;
 
-	self->st = rnnoise_create();
+
 
 	return (LV2_Handle)self;
 }
@@ -190,7 +190,7 @@ run(LV2_Handle instance, uint32_t n_samples)
 			//Copy samples to RNNoise input array
 			for (k = 0; k < self->frame_size; k++)
 			{
-				self->input_frame[k] = self->in_fifo[k];
+				self->rnnoise_input_frame[k] = self->in_fifo[k];
 			}
 
 			//------------PROCESSING-------------
@@ -198,18 +198,18 @@ run(LV2_Handle instance, uint32_t n_samples)
 			// //Test
 			// for (k = 0; k < self->frame_size; k++)
 			// {
-			// 	self->processed_frame[k] = self->input_frame[k];
+			// 	self->rnnoise_output_frame[k] = self->rnnoise_input_frame[k];
 			// }
 
 			//Process input_frame
-			rnnoise_process_frame(self->st, self->processed_frame, self->input_frame);
+			rnnoise_process_frame(self->st, self->rnnoise_output_frame, self->rnnoise_input_frame);
 
 			//-----------------------------------
 
 			//Output processed samples from RNNoise to output fifo
 			for (k = 0; k < self->frame_size; k++)
 			{
-				self->out_fifo[k] = self->processed_frame[k];
+				self->out_fifo[k] = self->rnnoise_output_frame[k];
 			}
 
 			//-------------------------------

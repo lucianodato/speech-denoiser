@@ -7,7 +7,7 @@ cd rnnoise/
 ./autogen.sh
 CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
 	./configure \
-  --disable-examples --disable-doc \
+  # --disable-examples --disable-doc \
 	--enable-single --enable-sse --enable-avx --disable-mpi \
 	--disable-shared --enable-static
 make -j2
