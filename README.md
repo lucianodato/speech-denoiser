@@ -1,4 +1,4 @@
-# speech-denoiser
+speech-denoiser
 ------
 A speech denoise lv2 plugin based on Xiph's RNNoise library
 

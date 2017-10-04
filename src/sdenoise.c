@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 */
 
 /**
-* \file snrepel.c
+* \file sdenoise.c
 * \author Luciano Dato
 * \brief The main file for host interaction
 */
@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 #include <rnnoise.h>
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 
-#define SDENOISE_URI "https://github.com/lucianodato/speech-denoise"
+#define SDENOISE_URI "https://github.com/lucianodato/speech-denoiser"
 
 #define FRAME_SIZE 480 //Frame default size
 
@@ -54,7 +54,7 @@ typedef enum
 } PortIndex;
 
 /**
-* Struct for speech-denoise instance, the host is going to use.
+* Struct for speech-denoiser instance, the host is going to use.
 */
 typedef struct
 {
@@ -103,7 +103,7 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	//RNNoise related
 	self->frame_size = FRAME_SIZE;
 
-	//buffers for OLA
+	//processing buffers
 	self->in_fifo = (float*)calloc(self->frame_size, sizeof(float));
 	self->out_fifo = (float*)calloc(self->frame_size, sizeof(float));
 	self->input_frame = (float*)calloc(self->frame_size, sizeof(float));
@@ -199,14 +199,15 @@ run(LV2_Handle instance, uint32_t n_samples)
 
 			//------------PROCESSING-------------
 
-			//Process input_frame
-			rnnoise_process_frame(self->st, self->processed_frame, self->input_frame);
-
 			// //Test
 			// for (k = 0; k < self->frame_size; k++)
 			// {
 			// 	self->processed_frame[k] = self->input_frame[k];
 			// }
+
+			//Process input_frame
+			rnnoise_process_frame(self->st, self->processed_frame, self->input_frame);
+
 			//-----------------------------------
 
 			//Output samples
