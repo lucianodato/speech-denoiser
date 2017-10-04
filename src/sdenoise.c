@@ -81,7 +81,6 @@ typedef struct
 	float* input_frame;
 	float* processed_frame;
 	int read_ptr; //buffers read pointer
-	int write_ptr; //buffers write pointer
 
 	DenoiseState *st;
 
