@@ -1,7 +1,7 @@
 /*
-noise-repellent -- Noise Reduction LV2
+speech-denoise -- Speech noise reduction LV2
 
-Copyright 2016 Luciano Dato <lucianodato@gmail.com>
+Copyright 2017 Luciano Dato <lucianodato@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -54,7 +54,7 @@ typedef enum
 } PortIndex;
 
 /**
-* Struct for THE noise repellent instance, the host is going to use.
+* Struct for speech-denoise instance, the host is going to use.
 */
 typedef struct
 {
@@ -66,7 +66,7 @@ typedef struct
 	float* enable; //For soft bypass (click free bypass)
 	float* report_latency; //Latency necessary
 
-	//Parameters values and arrays for the STFT
+	//Parameters values for RNNoise libray
 	int frame_size; //RNNOISE frame input size
 
 	//Algorithm exta variables
@@ -79,7 +79,7 @@ typedef struct
 	float* in_fifo; //internal input buffer
 	float* out_fifo; //internal output buffer
 	float* input_frame;
-	float* processed_frame; //FFT output accumulator
+	float* processed_frame;
 	int read_ptr; //buffers read pointer
 	int write_ptr; //buffers write pointer
 
@@ -100,7 +100,7 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	//Sampling related
 	self->samp_rate = (float)rate;
 
-	//FFT related
+	//RNNoise related
 	self->frame_size = FRAME_SIZE;
 
 	//buffers for OLA
