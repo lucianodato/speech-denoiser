@@ -114,8 +114,6 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	self->tau = (1.f - expf(-2.f * M_PI * 25.f * 64.f  / self->samp_rate));
 	self->wet_dry = 0.f;
 
-
-
 	return (LV2_Handle)self;
 }
 
@@ -184,7 +182,7 @@ run(LV2_Handle instance, uint32_t n_samples)
 		//Once the buffer is full we can do stuff
 		if (self->read_ptr >= self->frame_size)
 		{
-			//Reset the input buffer position
+			//Reset the ptr position
 			self->read_ptr = 0;
 
 			//Copy samples to RNNoise input array
@@ -224,9 +222,6 @@ run(LV2_Handle instance, uint32_t n_samples)
 static void
 cleanup(LV2_Handle instance)
 {
-	SDenoise* self = (SDenoise*)instance;
-
-	rnnoise_destroy(self->st);
 	free(instance);
 }
 
