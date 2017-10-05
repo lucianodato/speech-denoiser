@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 
 #define SDENOISE_URI "https://github.com/lucianodato/speech-denoiser"
 
-#define FRAME_SIZE 480 //Frame default size
+#define FRAME_SIZE 480 //Frame default size (For 48 kHz sampling rate)
 
 #define M_PI 3.14159265358979323846f
 
@@ -172,9 +172,9 @@ run(LV2_Handle instance, uint32_t n_samples)
 	//main loop for processing
 	for (pos = 0; pos < n_samples; pos++)
 	{
-		//Store samples in the input buffer
+		//Copy samples in the input buffer
 		self->in_fifo[self->read_ptr] = self->input[pos];
-		//Output samples in the output buffer (even zeros introduced by latency)
+		//Output samples in the output buffer
 		self->output[pos] = self->out_fifo[self->read_ptr];
 		//Now move the read pointer
 		self->read_ptr++;

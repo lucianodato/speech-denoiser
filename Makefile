@@ -59,6 +59,8 @@ override CFLAGS += `pkg-config --cflags lv2`
 ifneq ($(shell test -f rnnoise/.libs/librnnoise.a || echo no), no)
   LV2CFLAGS=$(CFLAGS) -Irnnoise/include
   LOADLIBES=rnnoise/.libs/librnnoise.a -lm
+else
+	$(error "RNNoise library was not found")
 endif
 
 #for debug building
@@ -90,7 +92,8 @@ $(BUILDDIR)$(LV2NAME)$(LIB_EXT): $(SRCDIR)$(LV2NAME).c
 	@mkdir -p $(BUILDDIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LV2CFLAGS) \
 		-o $(BUILDDIR)$(LV2NAME)$(LIB_EXT) $(SRCDIR)$(LV2NAME).c \
-		-shared $(LV2LDFLAGS) $(LDFLAGS) $(LOADLIBES)
+		-shared $(LV2LDFLAGS) $(LDFLAGS) \
+		-static -l$(LOADLIBES)
 
 ifeq ($(DEBUG), 0)
 	$(STRIP) $(STRIPFLAGS) $(BUILDDIR)$(LV2NAME)$(LIB_EXT)
