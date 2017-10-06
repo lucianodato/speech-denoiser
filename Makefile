@@ -11,7 +11,8 @@ sdenoise_VERSION?=$(shell git describe --tags HEAD 2>/dev/null | sed 's/-g.*$$//
 ###############################################################################
 LIB_EXT=.so
 
-LV2DIR ?= $(PREFIX)/lib/lv2
+LV2DIR?=$(PREFIX)/lib/lv2
+LDFLAGS= -lm
 LV2NAME=sdenoise
 BUNDLE=sdenoise.lv2
 BUILDDIR=build/
@@ -56,9 +57,9 @@ override CFLAGS += -fPIC -std=c99
 override CFLAGS += `pkg-config --cflags lv2`
 
 #compiling against a static build of rnnoise
-ifneq ($(shell test -f rnnoise/.libs/librnnoise.a || echo no), no)
-  LV2CFLAGS=$(CFLAGS) -Irnnoise/include
-  LOADLIBES=rnnoise/.libs/librnnoise.a -lm
+ifneq ($(shell test -f ./rnnoise/.libs/librnnoise.a || echo no), no)
+  LV2CFLAGS= -I./rnnoise/include
+  LOADLIBES=./rnnoise/.libs/librnnoise.a
 else
 	$(error "RNNoise library was not found")
 endif
@@ -90,10 +91,10 @@ $(BUILDDIR)$(LV2NAME).ttl: $(TTLDIR)$(LV2NAME).ttl.in
 
 $(BUILDDIR)$(LV2NAME)$(LIB_EXT): $(SRCDIR)$(LV2NAME).c
 	@mkdir -p $(BUILDDIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LV2CFLAGS) \
+	$(CC) $(CFLAGS) $(LV2CFLAGS) \
 		-o $(BUILDDIR)$(LV2NAME)$(LIB_EXT) $(SRCDIR)$(LV2NAME).c \
-		-shared $(LV2LDFLAGS) $(LDFLAGS) \
-		-static -l$(LOADLIBES)
+	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(LOADLIBES)
+
 
 ifeq ($(DEBUG), 0)
 	$(STRIP) $(STRIPFLAGS) $(BUILDDIR)$(LV2NAME)$(LIB_EXT)
