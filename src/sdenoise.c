@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include <rnnoise.h>
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
@@ -185,7 +186,7 @@ run(LV2_Handle instance, uint32_t n_samples)
 			//Reset the ptr position
 			self->read_ptr = 0;
 
-			//Copy samples to RNNoise input array
+			//Copy samples to RNNoise input array and scale to short limits
 			for (k = 0; k < self->frame_size; k++)
 			{
 				self->rnnoise_input_frame[k] = self->in_fifo[k];
@@ -193,14 +194,21 @@ run(LV2_Handle instance, uint32_t n_samples)
 
 			//------------PROCESSING-------------
 
-			// //Test
-			// for (k = 0; k < self->frame_size; k++)
-			// {
-			// 	self->rnnoise_output_frame[k] = self->rnnoise_input_frame[k];
-			// }
+			//Scaling up to short values
+			for (k = 0; k < self->frame_size; k++)
+			{
+				self->rnnoise_input_frame[k] *= SHRT_MAX;
+			}
 
 			//Process input_frame
 			rnnoise_process_frame(self->st, self->rnnoise_output_frame, self->rnnoise_input_frame);
+
+			//Scaling down to float values
+			for (k = 0; k < self->frame_size; k++)
+			{
+				self->rnnoise_output_frame[k] /= SHRT_MAX;
+				self->rnnoise_input_frame[k] /= SHRT_MAX;
+			}
 
 			//-----------------------------------
 
