@@ -10,7 +10,8 @@ src = 'src/sdenoise.c'
 cc = meson.get_compiler('c')
 
 #handling rnnoise static library
-lib_rnnoise = cc.find_library('rnnoise',required : true)
+lib_rnnoise = cc.find_library('rnnoise',dirs: meson.current_source_dir() + '/rnnoise/.libs/',required : true)
+inc_rnnoise = include_directories('rnnoise/include')
 
 #dependencies for speech denoise
 m_dep = cc.find_library('m', required : true)
@@ -38,7 +39,7 @@ if current_os == 'windows'
 endif
 
 #build of the shared object
-shared_library(lv2_name,src,name_prefix: '',dependencies: nr_dep,c_args: cflags,install: true,install_dir : i_path)
+shared_library(lv2_name,src,name_prefix: '',include_directories: inc_rnnoise,dependencies: nr_dep,c_args: cflags,install: true,install_dir : i_path)
 
 #Configure manifest ttl in order to replace the correct shared object extension
 manifest_conf = configuration_data()

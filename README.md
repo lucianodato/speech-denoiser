@@ -10,6 +10,6 @@ Commands to compile everything needed
 ```bash
   chmod +x static_rnnoise.sh
   ./static_rnnoise.sh
-  make
-  sudo make install
+  meson build --buildtype release && cd build
+  ninja && sudo ninja install
 ```
