@@ -39,7 +39,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 
 #define FRAME_SIZE 480 //Frame default size (For 48 kHz sampling rate)
 
+#ifndef M_PI
 #define M_PI 3.14159265358979323846f
+#endif
 
 ///---------------------------------------------------------------------
 

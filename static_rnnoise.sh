@@ -5,8 +5,9 @@ fi
 git clone https://github.com/xiph/rnnoise.git
 cd rnnoise/
 ./autogen.sh
-CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
+CFLAGS="-fvisibility=hidden -fPIC " \ 
 	./configure \
   --disable-examples --disable-doc \
 	--disable-shared --enable-static
 make -j2
+#-Wl,--exclude-libs,ALL

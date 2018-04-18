@@ -3,5 +3,5 @@
 
 <https://github.com/lucianodato/speech-denoiser>
   a lv2:Plugin;
-  lv2:binary <sdenoise.so> ;
+  lv2:binary <sdenoise@LIB_EXT@> ;
   rdfs:seeAlso <sdenoise.ttl> .
