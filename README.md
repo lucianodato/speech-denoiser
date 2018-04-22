@@ -4,7 +4,7 @@ A speech denoise lv2 plugin based on Xiph's RNNoise library
 
 You will require git gnu-make gnu-autoconf gnu-m4 gnu-libtool to be installed on your system in order to compile the static instance of RNNoise library
 
-For the plugin itself you'll need LV2 SDK, gnu-make, a c-compiler, git and pkg-config
+To compile and install this plug-in you will need the LV2 SDK, Meson build system (use pip3 to install it), ninja compiler and git
 
 Installation (Use whatever --prefix folder your OS needs) for example in MacOS:
 ```bash
