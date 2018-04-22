@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lucianodato/speech-denoiser.svg?branch=master)](https://travis-ci.org/lucianodato/speech-denoiser)
+
 speech-denoiser
 ------
 A speech denoise lv2 plugin based on Xiph's RNNoise library
