@@ -1,0 +1,37 @@
+sudo: false
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      sudo: required
+    - os: osx
+      osx_image: xcode8.3
+
+language: c
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask uninstall oclint; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install lv2 meson ninja pkg-config automake autoconf m4 libtool; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq lv2-dev python3-pip ninja-build automake autoconf m4 libtool; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo -H pip3 install --upgrade pip; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo pip3 install meson; fi
+
+script:
+  - chmod +x static_rnnoise.sh && ./static_rnnoise.sh
+  - meson build --buildtype release && cd build 
+  - ninja -v && sudo ninja install
+  
+# deploy:
+#   provider: releases
+#   api_key:
+#     secure: ${GH_TOKEN}
+#   file_glob: true
+#   file: bin/*
+#   skip_cleanup: true
+#   overwrite: true
+#   on:
+#     repo: lucianodato/noise-repellent
+#     tags: true
