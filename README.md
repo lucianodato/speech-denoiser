@@ -4,7 +4,7 @@ speech-denoiser
 ------
 A speech denoise lv2 plugin based on Xiph's RNNoise library
 
-Requirments
+Requirements
 -----
 You will require git gnu-make gnu-autoconf gnu-m4 gnu-libtool to be installed on your system in order to compile the static instance of RNNoise library
 
