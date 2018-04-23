@@ -21,6 +21,10 @@ Use whatever --prefix folder your OS needs, for example in MacOS:
 ```
 In linux prefix should be --prefix "/usr/local/lib/lv2" or something similar depending on your distro filesystem requirments.
 
+Help RNNoise to get better!
+-----
+Remeber to donate a minute of noise to the cause -> https://people.xiph.org/~jm/demo/rnnoise/donate.html
+
 Alternative
 -----
 Make sure to check out Noise Repellent LV2 plugin if this is not working for you -> https://github.com/lucianodato/noise-repellent
