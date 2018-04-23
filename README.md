@@ -4,6 +4,10 @@ speech-denoiser
 ------
 A speech denoise lv2 plugin based on Xiph's RNNoise library
 
+What is RNNoise?
+-----
+RNNoise is a library that uses deep learning to apply noise supression to audio sources with voice presence. You can learn more about it here: https://people.xiph.org/~jm/demo/rnnoise/
+
 Requirements
 -----
 You will require git gnu-make gnu-autoconf gnu-m4 gnu-libtool to be installed on your system in order to compile the static instance of RNNoise library
