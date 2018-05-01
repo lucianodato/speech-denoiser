@@ -27,7 +27,7 @@ In linux prefix should be --prefix "/usr/local/lib/lv2" or something similar dep
 
 Help RNNoise to get better!
 -----
-Remeber to donate a minute of noise to the cause -> https://people.xiph.org/~jm/demo/rnnoise/donate.html
+Remember to donate a minute of noise to the cause -> https://people.xiph.org/~jm/demo/rnnoise/donate.html
 
 Alternative
 -----
