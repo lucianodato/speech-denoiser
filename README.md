@@ -10,7 +10,7 @@ RNNoise is a library that uses deep learning to apply noise supression to audio 
 
 Requirements
 -----
-You will require git gnu-make gnu-autoconf gnu-m4 gnu-libtool to be installed on your system in order to compile the static instance of RNNoise library
+You will require git gnu-make gnu-autoconf gnu-m4 gnu-libtool glibc to be installed on your system in order to compile the static instance of RNNoise library
 
 To compile and install this plug-in you will need the LV2 SDK, Meson build system (use pip3 to install it), ninja compiler and git
 

@@ -196,20 +196,24 @@ run(LV2_Handle instance, uint32_t n_samples)
 
 			//------------PROCESSING-------------
 
-			//Scaling up to short values
-			for (k = 0; k < self->frame_size; k++)
+			//Only call rrnoise if enabled
+			if (*(self->enable) != 0.f)
 			{
-				self->rnnoise_input_frame[k] *= SHRT_MAX;
-			}
+				//Scaling up to short values
+				for (k = 0; k < self->frame_size; k++)
+				{
+					self->rnnoise_input_frame[k] *= SHRT_MAX;
+				}
 
-			//Process input_frame
-			rnnoise_process_frame(self->st, self->rnnoise_output_frame, self->rnnoise_input_frame);
+				//Process input_frame
+				rnnoise_process_frame(self->st, self->rnnoise_output_frame, self->rnnoise_input_frame);
 
-			//Scaling down to float values
-			for (k = 0; k < self->frame_size; k++)
-			{
-				self->rnnoise_output_frame[k] /= SHRT_MAX;
-				self->rnnoise_input_frame[k] /= SHRT_MAX;
+				//Scaling down to float values
+				for (k = 0; k < self->frame_size; k++)
+				{
+					self->rnnoise_output_frame[k] /= SHRT_MAX;
+					self->rnnoise_input_frame[k] /= SHRT_MAX;
+				}
 			}
 
 			//-----------------------------------
