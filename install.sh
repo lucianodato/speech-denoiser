@@ -7,32 +7,35 @@ INSTALL_DIR_MAC="/Library/Audio/Plug-Ins/LV2"
 # Detect the platform (similar to $OSTYPE)
 OS="`uname`"
 case $OS in
-  'Linux') OS='Linux';;
-  'Darwin') OS='Mac';;
+  'Linux') OS='Linux' && echo "You are on a Linux system. Building for Linux";;
+  'Darwin') OS='Mac' && echo "You are on a Mac system. Building for MacOS";;
   *) ;;
 esac
 
-#remove previous build
-rm -rf build rnnoise || true
+#remove previous builds
+rm -rf build || true
 
 #build rrnoise statically
-git clone https://github.com/xiph/rnnoise.git
-./rnnoise/autogen.sh
+wget https://github.com/xiph/rnnoise/archive/master.zip
+unzip -o master.zip && rm master.zip
+cd rnnoise-master && ./autogen.sh
+mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work
 
 if [ $OS = "Mac" ]; then
     CFLAGS="-fvisibility=hidden -fPIC " \ 
-    ./configure/rnnoise/ --disable-examples --disable-doc --disable-shared --enable-static        
+    ./configure --disable-examples --disable-doc --disable-shared --enable-static        
 elif [ $OS = "Linux" ]; then
     CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
-    ./configure/rnnoise/ --disable-examples --disable-doc --disable-shared --enable-static
+    ./configure --disable-examples --disable-doc --disable-shared --enable-static
 fi
+
+make -j2
+cd ..
 
 #build the plugin in the new directory
 if [ $OS = "Linux" ]; then
-    echo "You are on a Linux system. Building for Linux"
     meson build --buildtype release --prefix $INSTALL_DIR_LINUX
 elif [ $OS = "Mac" ]; then
-    echo "You are on a Mac system. Building for MacOS"
     meson build --buildtype release --prefix $INSTALL_DIR_MAC
 fi
 
@@ -41,3 +44,7 @@ ninja -v
 
 #install the plugin in the system
 sudo ninja install
+
+#Remove static rnnoise build
+cd ..
+rm -rfv rnnoise-master
