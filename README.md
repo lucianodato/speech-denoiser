@@ -16,14 +16,10 @@ To compile and install this plug-in you will need the LV2 SDK, Meson build syste
 
 Installation 
 -----
-Use whatever --prefix folder your OS needs, for example in MacOS:
 ```bash
-  chmod +x static_rnnoise.sh
-  ./static_rnnoise.sh
-  meson build --buildtype release --prefix "/Library/Audio/Plug-Ins/LV2" && cd build
-  ninja && sudo ninja install
+  chmod +x install.sh
+  ./install.sh
 ```
-In linux prefix should be --prefix "/usr/local/lib/lv2" or something similar depending on your distro filesystem requirments.
 
 Help RNNoise to get better!
 -----
