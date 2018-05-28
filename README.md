@@ -17,8 +17,9 @@ To compile and install this plug-in you will need the LV2 SDK, Meson build syste
 Installation 
 -----
 ```bash
-  chmod +x install.sh
-  ./install.sh
+  git clone https://github.com/lucianodato/speech-denoiser.git
+  cd speech-denoiser 
+  chmod +x install.sh && ./install.sh
 ```
 
 Help RNNoise to get better!
