@@ -211,8 +211,7 @@ run(LV2_Handle instance, uint32_t n_samples)
 				//Scaling down to float values
 				for (k = 0; k < self->frame_size; k++)
 				{
-					self->rnnoise_output_frame[k] /= SHRT_MAX;
-					self->rnnoise_input_frame[k] /= SHRT_MAX;
+					self->rnnoise_input_frame[k] = self->rnnoise_output_frame[k] / SHRT_MAX;
 				}
 			}
 
@@ -221,7 +220,7 @@ run(LV2_Handle instance, uint32_t n_samples)
 			//Output processed samples from RNNoise to output fifo considering soft bypass
 			for (k = 0; k < self->frame_size; k++)
 			{
-				self->out_fifo[k] = (1.f-self->wet_dry)*self->rnnoise_input_frame[k] + self->wet_dry*self->rnnoise_output_frame[k];
+				self->out_fifo[k] = (1.f - self->wet_dry) * self->in_fifo[k] + self->wet_dry * self->rnnoise_input_frame[k];
 			}
 
 			//-------------------------------

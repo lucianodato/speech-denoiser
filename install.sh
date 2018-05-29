@@ -12,25 +12,38 @@ case $OS in
   *) ;;
 esac
 
-#remove previous builds
-rm -rf build || true
-
-#build rrnoise statically
-wget https://github.com/xiph/rnnoise/archive/master.zip
-unzip -o master.zip && rm master.zip
-cd rnnoise-master && ./autogen.sh
-mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work
-
-if [ $OS = "Mac" ]; then
-    CFLAGS="-fvisibility=hidden -fPIC " \ 
-    ./configure --disable-examples --disable-doc --disable-shared --enable-static        
-elif [ $OS = "Linux" ]; then
-    CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
-    ./configure --disable-examples --disable-doc --disable-shared --enable-static
+#Remove static rnnoise build
+if [ -d rnnoise-master ]; then
+    read -p "Do you want to remove previous rnnoise build? (y/n)?" choice
+    case "$choice" in 
+    y|Y ) rm -rf rnnoise-master && echo "Previous rnnoise build removed";;
+    n|N ) echo "Previous rnnoise build was not removed";;
+    * ) echo "invalid";;
+    esac
 fi
 
-make -j2
-cd ..
+#only rebuild rnnoise if the user prefers to
+if [ ! -d rnnoise-master ]; then
+    #build rrnoise statically
+    wget https://github.com/xiph/rnnoise/archive/master.zip
+    unzip -o master.zip && rm master.zip
+    cd rnnoise-master && ./autogen.sh
+    mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work
+
+    if [ $OS = "Mac" ]; then
+        CFLAGS="-fvisibility=hidden -fPIC " \ 
+        ./configure --disable-examples --disable-doc --disable-shared --enable-static        
+    elif [ $OS = "Linux" ]; then
+        CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
+        ./configure --disable-examples --disable-doc --disable-shared --enable-static
+    fi
+
+    make -j2
+    cd ..
+fi
+
+#remove previous builds
+rm -rf build || true
 
 #build the plugin in the new directory
 if [ $OS = "Linux" ]; then
@@ -44,7 +57,3 @@ ninja -v
 
 #install the plugin in the system
 sudo ninja install
-
-#Remove static rnnoise build
-cd ..
-rm -rfv rnnoise-master
