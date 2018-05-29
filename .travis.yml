@@ -20,7 +20,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo pip3 install meson; fi
 
 script:
-  - chmod +x install.sh && ./install.sh && yes "y"
+  - chmod +x install.sh && yes | ./install.sh
   
 # deploy:
 #   provider: releases
