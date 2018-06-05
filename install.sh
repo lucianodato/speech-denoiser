@@ -13,21 +13,19 @@ case $OS in
 esac
 
 #Remove static rnnoise build
-if [ -d rnnoise-master ]; then
+if [ -d rnnoise ]; then
     read -p "Do you want to remove previous rnnoise build? (y/n)?" choice
     case "$choice" in 
-    y|Y ) rm -rf rnnoise-master && echo "Previous rnnoise build removed";;
+    y|Y ) rm -rf rnnoise && echo "Previous rnnoise build removed";;
     n|N ) echo "Previous rnnoise build was not removed";;
     * ) echo "invalid";;
     esac
 fi
 
 #only rebuild rnnoise if the user prefers to
-if [ ! -d rnnoise-master ]; then
+if [ ! -d rnnoise ]; then
     #build rrnoise statically
-    wget https://github.com/xiph/rnnoise/archive/master.zip
-    unzip -o master.zip && rm master.zip
-    cd rnnoise-master && ./autogen.sh
+    cd rnnoise && ./autogen.sh
     mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work
 
     if [ $OS = "Mac" ]; then
