@@ -12,33 +12,20 @@ case $OS in
   *) ;;
 esac
 
-#Remove static rnnoise build
-if [ -d rnnoise ]; then
-    read -p "Do you want to remove previous rnnoise build? (y/n)?" choice
-    case "$choice" in 
-    y|Y ) rm -rf rnnoise && echo "Previous rnnoise build removed";;
-    n|N ) echo "Previous rnnoise build was not removed";;
-    * ) echo "invalid";;
-    esac
+#build rrnoise statically
+cd rnnoise && ./autogen.sh
+mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work
+
+if [ $OS = "Mac" ]; then
+    CFLAGS="-fvisibility=hidden -fPIC " \ 
+    ./configure --disable-examples --disable-doc --disable-shared --enable-static        
+elif [ $OS = "Linux" ]; then
+    CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
+    ./configure --disable-examples --disable-doc --disable-shared --enable-static
 fi
 
-#only rebuild rnnoise if the user prefers to
-if [ ! -d rnnoise ]; then
-    #build rrnoise statically
-    cd rnnoise && ./autogen.sh
-    mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work
-
-    if [ $OS = "Mac" ]; then
-        CFLAGS="-fvisibility=hidden -fPIC " \ 
-        ./configure --disable-examples --disable-doc --disable-shared --enable-static        
-    elif [ $OS = "Linux" ]; then
-        CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
-        ./configure --disable-examples --disable-doc --disable-shared --enable-static
-    fi
-
-    make -j2
-    cd ..
-fi
+make -j2
+cd ..
 
 #remove previous builds
 rm -rf build || true
