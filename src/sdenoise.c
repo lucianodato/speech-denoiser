@@ -51,9 +51,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 typedef enum
 {
 	NREPEL_ENABLE = 0,
-	NREPEL_LATENCY = 1,
-	NREPEL_INPUT = 2,
-	NREPEL_OUTPUT = 3,
+	NREPEL_MIX = 1,
+	NREPEL_LATENCY = 2,
+	NREPEL_INPUT = 3,
+	NREPEL_OUTPUT = 4,
 } PortIndex;
 
 /**
@@ -68,6 +69,7 @@ typedef struct
 	//Parameters for the algorithm (user input)
 	float* enable; //For soft bypass (click free bypass)
 	float* report_latency; //Latency necessary
+	float* mix; //Mix between wet and dry signal
 
 	//Parameters values for RNNoise libray
 	int frame_size; //RNNOISE frame input size
@@ -84,6 +86,7 @@ typedef struct
 	float* out_fifo; //internal output buffer
 	float* rnnoise_input_frame;
 	float* rnnoise_output_frame;
+	float* processed_frame;
 	int read_ptr; //buffers read pointer
 
 } SDenoise;
@@ -110,6 +113,7 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	self->out_fifo = (float*)calloc(self->frame_size, sizeof(float));
 	self->rnnoise_input_frame = (float*)calloc(self->frame_size, sizeof(float));
 	self->rnnoise_output_frame = (float*)calloc(self->frame_size, sizeof(float));
+	self->processed_frame = (float*)calloc(self->frame_size, sizeof(float));
 	self->input_latency = self->frame_size;
 	self->read_ptr = 0; //the initial position because we are that many samples ahead
 
@@ -132,6 +136,9 @@ connect_port(LV2_Handle instance, uint32_t port, void* data)
 	{
 		case NREPEL_ENABLE:
 		self->enable = (float*)data;
+		break;
+		case NREPEL_MIX:
+		self->mix = (float*)data;
 		break;
 		case NREPEL_LATENCY:
 		self->report_latency = (float*)data;
@@ -211,16 +218,23 @@ run(LV2_Handle instance, uint32_t n_samples)
 				//Scaling down to float values
 				for (k = 0; k < self->frame_size; k++)
 				{
-					self->rnnoise_input_frame[k] = self->rnnoise_output_frame[k] / SHRT_MAX;
+					self->rnnoise_input_frame[k] = self->rnnoise_input_frame[k] / SHRT_MAX;
+					self->rnnoise_output_frame[k] = self->rnnoise_output_frame[k] / SHRT_MAX;
 				}
 			}
 
 			//-----------------------------------
 
+			//Mix wet and dry signal using the parameter
+			for (k = 0; k < self->frame_size; k++)
+			{
+				self->processed_frame[k] = (1.f - (*(self->mix) / 100.f)) * self->rnnoise_input_frame[k] + (*(self->mix) / 100.f) * self->rnnoise_output_frame[k];
+			}
+
 			//Output processed samples from RNNoise to output fifo considering soft bypass
 			for (k = 0; k < self->frame_size; k++)
 			{
-				self->out_fifo[k] = (1.f - self->wet_dry) * self->in_fifo[k] + self->wet_dry * self->rnnoise_input_frame[k];
+				self->out_fifo[k] = (1.f - self->wet_dry) * self->in_fifo[k] + self->wet_dry * self->processed_frame[k];
 			}
 
 			//-------------------------------

@@ -12,39 +12,25 @@ case $OS in
   *) ;;
 esac
 
-#Remove static rnnoise build
-if [ -d rnnoise ]; then
-    read -p "Do you want to remove previous rnnoise build? (y/n)?" choice
-    case "$choice" in 
-    y|Y ) rm -rf rnnoise && echo "Previous rnnoise build removed";;
-    n|N ) echo "Previous rnnoise build was not removed";;
-    * ) echo "invalid";;
-    esac
+#build rrnoise statically
+git submodule init
+git config submodule.rnnoise.url "rnnoise"
+git submodule update
+cd rnnoise
+git submodule sync
+./autogen.sh
+mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work (Related to bug #24 in rnnoise)
+
+if [ $OS = "Mac" ]; then
+    CFLAGS="-fvisibility=hidden -fPIC " \ 
+    ./configure --disable-examples --disable-doc --disable-shared --enable-static        
+elif [ $OS = "Linux" ]; then
+    CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
+    ./configure --disable-examples --disable-doc --disable-shared --enable-static
 fi
 
-#only rebuild rnnoise if the user prefers to
-if [ ! -d rnnoise ]; then
-    #build rrnoise statically
-    wget https://github.com/xiph/rnnoise/archive/master.zip
-    # When using git or submodule to get rnnoise, the directory will be called
-    # rnnoise, but when using the zip it will be rnnoise-master. Renaming to
-    # rnnoise to keep unity.
-    unzip -o master.zip && mv rnnoise-master rnnoise && rm master.zip
-    cd rnnoise && ./autogen.sh
-    mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work
-
-    if [ $OS = "Mac" ]; then
-        CFLAGS="-fvisibility=hidden -fPIC " \ 
-        ./configure --disable-examples --disable-doc --disable-shared --enable-static        
-    elif [ $OS = "Linux" ]; then
-        CFLAGS="-fvisibility=hidden -fPIC -Wl,--exclude-libs,ALL" \
-        ./configure --disable-examples --disable-doc --disable-shared --enable-static
-    fi
-
-    # Perhaps best to remove j? Or do:
-    make -j$(nproc)
-    cd ..
-fi
+make
+cd ..
 
 #remove previous builds
 rm -rf build || true

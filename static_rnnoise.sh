@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# No need for these with submodule
-# rm -rf rnnoise || true
-# git clone https://github.com/xiph/rnnoise.git
 cd rnnoise/
 ./autogen.sh
 mv ../ltmain.sh ./ && ./autogen.sh # Dang, what with this thing
