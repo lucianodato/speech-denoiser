@@ -13,11 +13,7 @@ case $OS in
 esac
 
 #build rrnoise statically
-git submodule init
-git config submodule.rnnoise.url "rnnoise"
-git submodule update
 cd rnnoise
-git submodule sync
 ./autogen.sh
 mv ../ltmain.sh ./ && ./autogen.sh #This is weird but otherwise it won't work (Related to bug #24 in rnnoise)
 
