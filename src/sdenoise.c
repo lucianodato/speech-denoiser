@@ -38,24 +38,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 #define SDENOISE_URI "https://github.com/lucianodato/speech-denoiser"
 
 #define FRAME_SIZE 480 //Frame default size (For 48 kHz sampling rate)
+#define RNNOISE_PARAM_MAX_ATTENUATION 1
+#define RNNOISE_PARAM_SAMPLE_RATE 2
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
 
-///---------------------------------------------------------------------
+	///---------------------------------------------------------------------
 
-/**
+	/**
 * Enumeration of LV2 ports.
 */
-typedef enum
-{
-	NREPEL_ENABLE = 0,
-	NREPEL_MIX = 1,
-	NREPEL_LATENCY = 2,
-	NREPEL_INPUT = 3,
-	NREPEL_OUTPUT = 4,
-} PortIndex;
+	typedef enum {
+		NREPEL_ENABLE = 0,
+		NREPEL_MIX = 1,
+		NREPEL_LATENCY = 2,
+		NREPEL_INPUT = 3,
+		NREPEL_OUTPUT = 4,
+	} PortIndex;
 
 /**
 * Struct for speech-denoiser instance, the host is going to use.
@@ -107,6 +108,7 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	//RNNoise related
 	self->frame_size = FRAME_SIZE;
 	self->st = rnnoise_create();
+	rnnoise_set_param(self->st, RNNOISE_PARAM_SAMPLE_RATE, self->samp_rate);
 
 	//processing buffers
 	self->in_fifo = (float*)calloc(self->frame_size, sizeof(float));
@@ -209,32 +211,35 @@ run(LV2_Handle instance, uint32_t n_samples)
 				//Scaling up to short values
 				for (k = 0; k < self->frame_size; k++)
 				{
-					self->rnnoise_input_frame[k] *= SHRT_MAX;
+					self->rnnoise_input_frame[k] *= 32768;
 				}
 
 				//Process input_frame
+				rnnoise_set_param(self->st, RNNOISE_PARAM_MAX_ATTENUATION, *(self->mix) / 100.f);
 				rnnoise_process_frame(self->st, self->rnnoise_output_frame, self->rnnoise_input_frame);
 
 				//Scaling down to float values
 				for (k = 0; k < self->frame_size; k++)
 				{
-					self->rnnoise_input_frame[k] = self->rnnoise_input_frame[k] / SHRT_MAX;
-					self->rnnoise_output_frame[k] = self->rnnoise_output_frame[k] / SHRT_MAX;
+					self->rnnoise_input_frame[k] = self->rnnoise_input_frame[k] / 32768;
+					self->rnnoise_output_frame[k] = self->rnnoise_output_frame[k] / 32768;
 				}
 			}
 
 			//-----------------------------------
 
-			//Mix wet and dry signal using the parameter
-			for (k = 0; k < self->frame_size; k++)
-			{
-				self->processed_frame[k] = (1.f - (*(self->mix) / 100.f)) * self->rnnoise_input_frame[k] + (*(self->mix) / 100.f) * self->rnnoise_output_frame[k];
-			}
+			
+
+			// //Mix wet and dry signal using the parameter
+			// for (k = 0; k < self->frame_size; k++)
+			// {
+			// 	self->processed_frame[k] = (1.f - (*(self->mix) / 100.f)) * self->rnnoise_input_frame[k] + (*(self->mix) / 100.f) * self->rnnoise_output_frame[k];
+			// }
 
 			//Output processed samples from RNNoise to output fifo considering soft bypass
 			for (k = 0; k < self->frame_size; k++)
 			{
-				self->out_fifo[k] = (1.f - self->wet_dry) * self->in_fifo[k] + self->wet_dry * self->processed_frame[k];
+				self->out_fifo[k] = (1.f - self->wet_dry) * self->in_fifo[k] + self->wet_dry * self->rnnoise_output_frame[k];
 			}
 
 			//-------------------------------
