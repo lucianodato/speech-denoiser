@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 #include <stdio.h>
 #include <limits.h>
 
-#include <rnnoise.h>
+#include <rnnoise-nu.h>
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 
 #define SDENOISE_URI "https://github.com/lucianodato/speech-denoiser"

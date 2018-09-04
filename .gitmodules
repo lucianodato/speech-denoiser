@@ -1,3 +1,3 @@
-[submodule "rnnoise"]
-	path = rnnoise
+[submodule "rnnoise-nu"]
+	path = rnnoise-nu
 	url = https://github.com/GregorR/rnnoise-nu
