@@ -10,7 +10,7 @@ src = 'src/sdenoise.c'
 cc = meson.get_compiler('c')
 
 #handling rnnoise static library
-lib_rnnoise = cc.find_library('rnnoise',dirs: meson.current_source_dir() + '/rnnoise/.libs/',required : true)
+lib_rnnoise = cc.find_library('rnnoise-nu',dirs: meson.current_source_dir() + '/rnnoise/.libs/',required : true)
 inc_rnnoise = include_directories('rnnoise/include')
 
 #dependencies for speech denoise
