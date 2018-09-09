@@ -40,3 +40,4 @@ fi
 
 cd build
 ninja -v
+ninja install
