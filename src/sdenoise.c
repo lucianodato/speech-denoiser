@@ -38,8 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/
 #define SDENOISE_URI "https://github.com/lucianodato/speech-denoiser"
 
 #define FRAME_SIZE 480 //Frame default size
-#define RNNOISE_PARAM_MAX_ATTENUATION 1
-#define RNNOISE_PARAM_SAMPLE_RATE 2
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -110,7 +108,6 @@ instantiate(const LV2_Descriptor* descriptor, double rate, const char* bundle_pa
 	self->frame_size = FRAME_SIZE;
 	
 	self->st = rnnoise_create(NULL);
-	rnnoise_init(self->st, NULL);
 	rnnoise_set_param(self->st, RNNOISE_PARAM_SAMPLE_RATE, self->samp_rate);
 	
 
@@ -184,6 +181,9 @@ run(LV2_Handle instance, uint32_t n_samples)
 	//Interpolate parameters over time softly to bypass without clicks or pops
 	self->wet_dry += self->tau * (self->wet_dry_target - self->wet_dry) + FLT_MIN;
 
+	//Configure the amount of reduction
+	rnnoise_set_param(self->st, RNNOISE_PARAM_MAX_ATTENUATION, FROM_DB(*(self->reduction)));
+
 	//main loop for processing
 	for (pos = 0; pos < n_samples; pos++)
 	{
@@ -218,7 +218,6 @@ run(LV2_Handle instance, uint32_t n_samples)
 				}
 
 				//Process input_frame
-				rnnoise_set_param(self->st, RNNOISE_PARAM_MAX_ATTENUATION, FROM_DB(*(self->reduction)));
 				rnnoise_process_frame(self->st, self->rnnoise_output_frame, self->rnnoise_input_frame);
 
 				//Scaling up to 32-bit values
