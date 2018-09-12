@@ -2,7 +2,7 @@
 
 speech-denoiser
 ------
-A speech denoise lv2 plugin based on Xiph's RNNoise library
+A speech denoise lv2 plugin based on the modified Xiph's RNNoise library by GregorR
 
 What is RNNoise?
 -----
@@ -17,7 +17,7 @@ To compile and install this plug-in you will need the LV2 SDK, Meson build syste
 Installation 
 -----
 ```bash
-  git clone --recurse-submodules https://github.com/lucianodato/speech-denoiser.git
+  git clone https://github.com/lucianodato/speech-denoiser.git
   cd speech-denoiser
   chmod +x install.sh && ./install.sh
 ```
